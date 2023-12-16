@@ -1,0 +1,22 @@
+{
+  "name": "fast-gh-app",
+  "version": "1.0.0",
+  "description": "fast api webhook server for github apps",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kellyoung/fast-gh-app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kellyoung/fast-gh-app/issues"
+  },
+  "homepage": "https://github.com/kellyoung/fast-gh-app#readme",
+  "dependencies": {
+    "smee-client": "^1.2.3"
+  }
+}
