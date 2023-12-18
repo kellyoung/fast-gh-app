@@ -1,16 +1,50 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Depends, Header
 from lib.installation_store import InstallationStore
 import copy
+import os
 
 app = FastAPI()
 installation_store = InstallationStore()
 
+# Define the GitHub webhook secret
+WEBHOOK_SECRET = os.environ["GITHUB_WEBHOOK_SECRET"]
+
+
+# Dependency to verify GitHub webhook secret
+async def verify_signature(
+    request: Request, x_hub_signature: str = Header(...)
+):
+    body = await request.body()
+    event_type = request.headers["X-GitHub-Event"]
+    json_body = await request.json()
+    signature = f"sha1={get_signature(WEBHOOK_SECRET, body)}"
+
+    if not compare_signatures(signature, x_hub_signature):
+        raise HTTPException(
+            status_code=403, detail="Invalid GitHub webhook signature"
+        )
+
+    return {"body": json_body, "event_type": event_type}
+
+
+def get_signature(secret, data):
+    import hmac
+    import hashlib
+
+    return hmac.new(secret.encode(), data, hashlib.sha1).hexdigest()
+
+
+def compare_signatures(sig1, sig2):
+    import secrets
+
+    return secrets.compare_digest(sig1, sig2)
+
 
 @app.post("/github-webhook")
-async def github_webhook(request: Request):
+async def github_webhook(request: dict = Depends(verify_signature)):
     try:
-        event = request.headers["X-GitHub-Event"]
-        data = await request.json()
+        data = request.get("body")
+        event = request.get("event_type")
 
         if event == "installation_repositories":
             handle_installation_repositories(data)
@@ -75,6 +109,7 @@ def handle_installation_repositories(data):
         return
 
     if action == "added" and selected_all:
+        print("added all repos")
         # clear set and set access_all to true
         updated_installation = copy.deepcopy(existing_installation)
         updated_installation["repos"] = []
@@ -100,6 +135,7 @@ def handle_installation(data):
 
     if action == "deleted" or action == "suspended":
         # set installation to deleted=True
+        print("### installation deleted")
         installation["deleted"] = True
         installation_store.create_or_update(installation)
         return
