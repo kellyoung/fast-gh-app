@@ -1,14 +1,18 @@
 # fast-gh-app
-boilerplate fastapi app + tools for github app installation 
 
-The app receives events for `installation` and `installation_repositories` and handles by updating the repositories the github application has access to.
+An example of a FastAPI application to interface with Github applications.
 
-set up
-in this example, we have a github app with permissions to read/write content and read/write pull requests. This is how you would create a github app like that in your github account.
+Github sends webhook events for events related to installation/uninstallation of a Github application on an account/organization and on a repository. This application listens to those events `installation` and `installation_repositories` events and writes to a simple local datastore to keep track of data pertaining to the installation.
 
-we want to be able to update the repositories the github app installation has access to
+Github also allows you to "authenticate" as the Github application a Github user has installed. To do this, you must generate an `installation_access_token` using the secret of your Github app as well as knowing the `installation_id` of the installation you want to authenticate as. There's also an endpoint for returning an `installation_access_token` (valid for 1 hour from generation) that can be used to authenticate and be given the same permissions as the Github app.
 
-it's installed on the organization/user level, so single app installation that gets updated
+The bulk of the example functionality is in `main.py`. However, `main-secrets.py` is provided as an example for how to process webhook events if you provided a `webhook secret` to your Github app setup.
 
-write to a local file
+## Local Development
+
+### Setup Github App
+
+### Setup Smee
+
+### Local Server Setup
 
