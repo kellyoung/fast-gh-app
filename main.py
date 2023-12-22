@@ -11,7 +11,19 @@ app_id = os.environ["GITHUB_APP_ID"]
 private_key_path = os.environ["PRIVATE_KEY_PATH"]
 
 app = FastAPI()
-installation_store = InstallationStore()
+data = {
+    "kellyoung": {
+        "active": {
+            "username": "kellyoung",
+            "installation_id": 45386519,
+            "all_repos": False,
+            "repos": ["36-hours", "cloudtask-experiment"],
+            "deleted": False,
+        },
+        "deleted": [],
+    }
+}
+installation_store = InstallationStore(data=data, file_location="./data_store")
 
 
 @app.post("/github-webhook")
@@ -41,26 +53,23 @@ async def get_active_installation(username: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/installation-token")
-async def create_installation_token(request: Request):
+@app.post("/{username}/installation-token")
+async def create_installation_token(username: str):
     try:
-        data = await request.json()
-        username = data["username"]
-        print(username)
         active_installation_res = await get_active_installation(username)
         active_installation = active_installation_res["data"]
         if not active_installation:
-            raise HTTPException(
-                status_code=404,
-                detail=f"No active installation found for {username}",
-            )
-
+            raise Exception(f"No active installation found for {username}")
         jwt_token = generate_jwt(app_id, private_key_path)
-        return generate_installation_token(
+        installation_token = generate_installation_token(
             jwt_token, active_installation["installation_id"]
         )
+        return {"data": installation_token}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        status_code = 500
+        if str(e).startswith("No active installation found"):
+            status_code = 404
+        raise HTTPException(status_code=status_code, detail=str(e))
 
 
 if __name__ == "__main__":
