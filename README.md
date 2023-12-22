@@ -8,11 +8,56 @@ Github also allows you to "authenticate" as the Github application a Github user
 
 The bulk of the example functionality is in `main.py`. However, `main-secrets.py` is provided as an example for how to process webhook events if you provided a `webhook secret` to your Github app setup.
 
+## Endpoints
+- **POST /github-webhook**: receives Github webhook events and saves installation data into a local data store
+- **GET /<username>/active-installation***: returns an `active installation` for the user specified. Returns `None` if no active installation exists.
+- **POST /<username>/installation-token**: creates a Github installation access token that can be used to make requests in Github on behalf of the installation (therefore giving you the same permissions as what the Github application has)
+
+
 ## Local Development
+### Setup Smee
+
+Visit [https://smee.io/](https://smee.io/) and "Start a new channel". Copy the "Webhook proxy URL" which will be used when setting up the Github app. 
 
 ### Setup Github App
 
-### Setup Smee
+If you don't already have a Github App, create a new one. Set "Webhook" to "active" and enter the "webhook proxy URL" from `smee.io` as the "Webhook URL". Once changes are saved, Github will send webhook events to the webhook URL.
+
+If you're setting up a webhook secret, make sure to remember the secret for the later steps.
+
+If you want to test out creating an `installation_token`, then you'll also need to generate a private key in the app's settings and store the file locally.
 
 ### Local Server Setup
+
+Clone this repo locally. Then, install packages.
+
+```
+pip install requirements.txt
+```
+
+Set up environmental variables:
+```
+export GITHUB_APP_ID=<github application ID found in settings>
+export PRIVATE_KEY_PATH=<file path to where the private key is stored locally>
+```
+
+If you're using a webhook secret:
+```
+export WEBHOOK_SECRET=<webhook secret from github app>
+```
+
+In another terminal window, we need to run `smee` to forward the webhook events to our `github-webhook` endpoint.
+
+```
+npm install
+npx smee -u <webhook proxy url> -t http://127.0.0.1:8000/github-webhook
+
+```
+
+Run the server
+
+```
+python main.py
+# python main-secrets.py if you want to try with secrets
+```
 

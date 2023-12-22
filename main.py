@@ -11,18 +11,6 @@ app_id = os.environ["GITHUB_APP_ID"]
 private_key_path = os.environ["PRIVATE_KEY_PATH"]
 
 app = FastAPI()
-data = {
-    "kellyoung": {
-        "active": {
-            "username": "kellyoung",
-            "installation_id": 45386519,
-            "all_repos": False,
-            "repos": ["36-hours", "cloudtask-experiment"],
-            "deleted": False,
-        },
-        "deleted": [],
-    }
-}
 installation_store = InstallationStore(data=data, file_location="./data_store")
 
 
