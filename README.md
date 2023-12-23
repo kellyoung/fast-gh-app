@@ -10,8 +10,8 @@ The bulk of the example functionality is in `main.py`. However, `main-secrets.py
 
 ## Endpoints
 - **POST /github-webhook**: receives Github webhook events and saves installation data into a local data store
-- **GET /<username>/active-installation***: returns an `active installation` for the user specified. Returns `None` if no active installation exists.
-- **POST /<username>/installation-token**: creates a Github installation access token that can be used to make requests in Github on behalf of the installation (therefore giving you the same permissions as what the Github application has)
+- **GET /{username>}/active-installation***: returns an `active installation` for the user specified. Returns `None` if no active installation exists.
+- **POST /{username}/installation-token**: creates a Github installation access token that can be used to make requests in Github on behalf of the installation (therefore giving you the same permissions as what the Github application has)
 
 
 ## Local Development
